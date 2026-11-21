@@ -28,6 +28,20 @@ device sidesteps CGNAT and inbound firewall rules. No port forwarding, no ngrok.
 
 **The builder is CLI-only.** There is no "APK Builder" tab in the dashboard.
 
+**There is no TLS.** Direct mode is plaintext end to end. See [18](18-tls-reverse-proxy.md)
+before using it on an untrusted network.
+
+## Start here
+
+| If you are… | Read |
+|---|---|
+| New and want a device in a dashboard | [00](00-quickstart.md) → [15](15-operator-runbook.md) |
+| Building for the first time | [01](01-requirements.md) → [02](02-building-payloads.md) |
+| Deciding on transport | [03](03-c2-deployment.md) |
+| Deciding whether to trust it | [09](09-security-notes.md) |
+| Putting it on a hostile network | [18](18-tls-reverse-proxy.md) |
+| Debugging a failure | [07](07-troubleshooting.md) |
+
 ## Docs index
 
 | Doc | Contents |
@@ -37,11 +51,11 @@ device sidesteps CGNAT and inbound firewall rules. No port forwarding, no ngrok.
 | [02-building-payloads.md](02-building-payloads.md) | All nine builder options, config keys, artifacts |
 | [03-c2-deployment.md](03-c2-deployment.md) | Google Sheets webhook vs. Node relay vs. direct IPv6 |
 | [04-device-http-api.md](04-device-http-api.md) | Endpoint reference for the on-device server and relay |
-| [05-dashboard-reference.md](05-dashboard-reference.md) | The 13 tabs and what each control does |
+| [05-dashboard-reference.md](05-dashboard-reference.md) | All 13 tabs: controls, prerequisites, caveats |
 | [06-stealth-and-persistence.md](06-stealth-and-persistence.md) | Decoys, blackout, watchdog layers, recovery hooks |
 | [07-troubleshooting.md](07-troubleshooting.md) | Build failures, Termux bridge, AAPT2 crashes, dead links |
-| [08-architecture.md](08-architecture.md) | Component map and source layout |
-| [09-security-notes.md](09-security-notes.md) | What is actually protected and what isn't |
+| [08-architecture.md](08-architecture.md) | Component map, data flow, trust domains |
+| [09-security-notes.md](09-security-notes.md) | What is protected, what is obfuscation, what is absent |
 | [10-faq.md](10-faq.md) | Short answers to the usual questions |
 | [11-maintaining-your-fork.md](11-maintaining-your-fork.md) | Rebranding, upgrading, upstream drift |
 | [12-server-setup.md](12-server-setup.md) | Relay and VPS setup |
@@ -50,9 +64,18 @@ device sidesteps CGNAT and inbound firewall rules. No port forwarding, no ngrok.
 | [15-operator-runbook.md](15-operator-runbook.md) | End-to-end operational procedure |
 | [16-resources-and-tools.md](16-resources-and-tools.md) | Every dependency, provider and external tool |
 | [17-expected-results.md](17-expected-results.md) | Verification: what success looks like |
+| [18-tls-reverse-proxy.md](18-tls-reverse-proxy.md) | TLS termination via Tailscale, Caddy, Cloudflare |
 
 ## 60-second tour
 
     git clone https://github.com/kool277/Lab-RATS-v1.6.git
     cd Lab-RATS-v1.6/apk-builder
     chmod +x build.sh && ./build.sh
+
+## Conventions in these docs
+
+- **Bold** marks a destructive or irreversible action.
+- "Device" always means the target. "Host" always means your build machine.
+- `9191` is the fixed port unless a doc says otherwise.
+- Where a doc says "prerequisite: Accessibility", the control silently no-ops without it.
+- Security claims carry a shelf life. Anything about AV verdicts is dated within weeks.
