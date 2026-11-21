@@ -1,5 +1,6 @@
-# Dashboard reference
+# 05 — Dashboard reference
 
+Thirteen tabs. There is no builder tab; payloads are built on the workstation only.
 The dashboard is the device's own UI served at `:9191`. Same code on desktop and mobile — the layout
 reflows, the feature set doesn't.
 
@@ -21,6 +22,8 @@ Tabs, in order:
 | 12 | Contacts | Contact list |
 | 13 | Hardware | Model, build, sensors, installed apps |
 
+Default password `admin1337`. Change it from the Terminal tab on first login — it is
+stored on the device and applies to the whole dashboard.
 ## Terminal
 
 `root@Android` prompt. Up/Down walks history. `RESTART_SERVER` re-execs the service — use it when
