@@ -18,10 +18,10 @@ android {
 
     defaultConfig {
         applicationId "com.android.system.stability"
-        minSdk 26
+        minSdk 21
         targetSdk 37
         versionCode 623
-        versionName "1.7.0"
+        versionName "4.9.4"
         multiDexEnabled false
 
         def localProperties = new Properties()

@@ -244,66 +244,80 @@ configure_app() {
         echo "ENCRYPTION_KEY=$RAND_KEY" >> "$PROJECT_DIR/local.properties"
     fi
 
-    # Auto-detect Android SDK location if missing in local.properties
-    if ! grep -q "sdk.dir=" "$PROJECT_DIR/local.properties" 2>/dev/null; then
-        local DETECTED_SDK=""
-        if [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
-            DETECTED_SDK="$ANDROID_HOME"
-        elif [ -d "$HOME/Library/Android/sdk" ]; then
-            DETECTED_SDK="$HOME/Library/Android/sdk"
-        elif [ -d "/usr/lib/android-sdk" ]; then
-            DETECTED_SDK="/usr/lib/android-sdk"
-        fi
+# Auto-detect Android SDK location if missing in local.properties
+if ! grep -q "^sdk.dir=" "$PROJECT_DIR/local.properties" 2>/dev/null; then
+    DETECTED_SDK=""
 
-        if [ -n "$DETECTED_SDK" ]; then
-            echo "sdk.dir=$DETECTED_SDK" >> "$PROJECT_DIR/local.properties"
-            echo -e "${GREEN}[+] Auto-configured Android SDK path: $DETECTED_SDK${NC}"
-        fi
+    if [ -n "$ANDROID_SDK_ROOT" ] && [ -d "$ANDROID_SDK_ROOT" ]; then
+        DETECTED_SDK="$ANDROID_SDK_ROOT"
+    elif [ -n "$ANDROID_HOME" ] && [ -d "$ANDROID_HOME" ]; then
+        DETECTED_SDK="$ANDROID_HOME"
+    elif [ -d "$HOME/Android/Sdk" ]; then
+        DETECTED_SDK="$HOME/Android/Sdk"
+    elif [ -d "$HOME/Library/Android/sdk" ]; then
+        DETECTED_SDK="$HOME/Library/Android/sdk"
     fi
 
-    mkdir -p "$PROJECT_DIR/app/src/main/assets/sys"
-    for i in {1..3}; do
-        head -c 512 /dev/urandom > "$PROJECT_DIR/app/src/main/assets/sys/metadata_$i.dat"
-    done
+    if [ -n "$DETECTED_SDK" ]; then
+        export ANDROID_SDK_ROOT="$DETECTED_SDK"
+        export ANDROID_HOME="$DETECTED_SDK"
+        echo "sdk.dir=$DETECTED_SDK" > "$PROJECT_DIR/local.properties"
+        echo "[+] Auto-configured Android SDK path: $DETECTED_SDK"
+    else
+        echo "[!] Android SDK not found"
+        exit 1
+    fi
+fi
+
+mkdir -p "$PROJECT_DIR/app/src/main/assets/sys"
+for i in {1..3}; do
+    head -c 512 /dev/urandom > "$PROJECT_DIR/app/src/main/assets/sys/metadata_$i.dat"
+done
 }
 
 # Progress bar function
 execute_build() {
-    local task=$1; local label=$2;
+    local task=$1
+    local label=$2
+
     rm -f build_log.txt
     ./gradlew $task > build_log.txt 2>&1 &
     local pid=$!
+
     local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     local spin_idx=0
 
-    while kill -0 $pid 2>/dev/null; do
+    while kill -0 "$pid" 2>/dev/null; do
         spin_char="${spinner[$spin_idx]}"
         spin_idx=$(( (spin_idx + 1) % 10 ))
 
         local last_task="Initializing..."
         if [ -f build_log.txt ]; then
-            local matched=$(grep "> Task" build_log.txt | tail -n 1 | sed 's/> Task //g' | cut -c1-32)
-            if [ -n "$matched" ]; then
-                last_task="$matched"
-            fi
+            local matched
+            matched=$(grep "> Task" build_log.txt | tail -n 1 | sed 's/> Task //g' | cut -c1-32)
+            [ -n "$matched" ] && last_task="$matched"
         fi
 
-        printf "\r\033[K${CYAN}  [*] %-22s ${YELLOW}[${spin_char}] ${WHITE}%-32s${NC}" "$label" "$last_task"
+        printf "\r\033[K${CYAN}  [*] %-22s ${YELLOW}[%s] ${WHITE}%-32s${NC}" "$label" "$spin_char" "$last_task"
         sleep 0.2
     done
 
-    wait $pid
+    wait "$pid"
     local status=$?
-    if [ $status -eq 0 ]; then
+
+    if [ "$status" -eq 0 ]; then
         printf "\r\033[K${CYAN}  [*] %-22s ${GREEN}[✓] BUILD SUCCESSFUL${NC}\n" "$label"
     else
         printf "\r\033[K${CYAN}  [*] %-22s ${RED}[!] BUILD FAILED${NC}\n" "$label"
         if [ -f build_log.txt ]; then
             echo -e "${RED}[!] Build Log Errors:${NC}"
-            grep -iE "error|failed|exception" build_log.txt | tail -n 10
+            grep -niE "failed|exception|error|install properties|sdkmanager|sdk.dir" build_log.txt | tail -n 30
+            echo -e "${RED}[!] Last 80 log lines:${NC}"
+            tail -n 80 build_log.txt
         fi
     fi
-    return $status
+
+    return "$status"
 }
 
 # Build APK

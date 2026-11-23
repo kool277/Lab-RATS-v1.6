@@ -65,7 +65,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   if (!password && req.body && req.body.p) password = req.body.p;
   password = deobfuscatePass(password);
 
-  const C2_PASS = process.env.C2_PASSWORD || 'Fly.admin1337';
+   const C2_PASS = process.env.C2_PASSWORD || 'Fly.admin1337';
   const user = await db.findUserByEmail(email);
 
   // Always run bcrypt.compare to prevent timing attacks even if user doesn't exist
